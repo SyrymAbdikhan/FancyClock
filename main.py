@@ -3,6 +3,7 @@ from pygame.locals import *
 
 def main():
     pygame.init()
+    pygame.mouse.set_visible(False)
     
     screen = pygame.display.set_mode((0,0), FULLSCREEN)
     screen_size = screen.get_size()
@@ -15,7 +16,7 @@ def main():
         cube_size = min([screen_size[0]//15,screen_size[1]//25])
         start_point = [(screen_size[0]-cube_size*13)//2,(screen_size[1]-cube_size*23)//2]
     else:
-        cube_size = min([screen_size[0]//39,screen_size[1]//7])
+        cube_size = min([screen_size[0]//41,screen_size[1]//9])
         start_point = [(screen_size[0]-cube_size*39)//2,(screen_size[1]-cube_size*7)//2]
     
     chars_surf = get_chars_surf(cube_size=cube_size,border=3)
