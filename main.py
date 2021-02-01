@@ -67,7 +67,7 @@ def main():
         clock.tick(fps)
 
 def init(screen_size, mode=None):
-    if mode is None and mode in [0, 1]:
+    if mode is None and mode not in [0, 1]:
         mode = 1 if screen_size[0] <= screen_size[1] else 0
 
     if mode:
