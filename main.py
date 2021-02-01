@@ -11,22 +11,32 @@ def main():
     clock = pygame.time.Clock()
     fps = 60
     
-    mode = 1 if screen_size[0] <= screen_size[1] else 0
-    if mode:
-        cube_size = min([screen_size[0]//15,screen_size[1]//27])
-        start_point = [(screen_size[0]-cube_size*13)//2,(screen_size[1]-cube_size*25)//2]
-    else:
-        cube_size = min([screen_size[0]//41,screen_size[1]//9])
-        start_point = [(screen_size[0]-cube_size*39)//2,(screen_size[1]-cube_size*7)//2]
-    
-    chars_surf = get_chars_surf(cube_size=cube_size,border=cube_size//10)
+    mode, cube_size, start_point, chars_surf = init(screen_size)
     current_time = get_current_time()
+
+    black_screen = pygame.Surface(screen_size)
+    black_screen.fill((0,0,0))
+    onchange = False
+    fadein = 1
+    alpha = 0
     
     while True:
 
         current_time = get_current_time()
+
+        if onchange:
+            alpha += 5 * fadein
+            black_screen.set_alpha(alpha)
+            if alpha >= 255 and fadein == 1:
+                fadein = -1
+                mode, cube_size, start_point, chars_surf = init(screen_size, not mode)
+            if alpha <= 0 and fadein == -1:
+                onchange = False
+                fadein = 1
+        
         if mode:
             current_time = ' ' + current_time
+
         screen.fill((0,0,0))
         
         current_point = start_point[::]
@@ -39,6 +49,9 @@ def main():
             else:
                 current_point[0] += surf.get_width() + cube_size
         
+        if onchange:
+            screen.blit(black_screen, (0,0))
+        
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
@@ -47,9 +60,26 @@ def main():
                 if event.key == K_ESCAPE:
                     pygame.quit()
                     sys.exit()
+                if event.key == K_SPACE:
+                    onchange = True
         
         pygame.display.flip()
         clock.tick(fps)
+
+def init(screen_size, mode=None):
+    if mode is None and mode in [0, 1]:
+        mode = 1 if screen_size[0] <= screen_size[1] else 0
+
+    if mode:
+        cube_size = min([screen_size[0]//15,screen_size[1]//27])
+        start_point = [(screen_size[0]-cube_size*13)//2,(screen_size[1]-cube_size*25)//2]
+    else:
+        cube_size = min([screen_size[0]//41,screen_size[1]//9])
+        start_point = [(screen_size[0]-cube_size*39)//2,(screen_size[1]-cube_size*7)//2]
+    
+    chars_surf = get_chars_surf(cube_size=cube_size,border=cube_size//10)
+    
+    return mode, cube_size, start_point, chars_surf
     
 def get_current_time():
     return time.strftime('%H:%M:%S')
