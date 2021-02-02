@@ -16,9 +16,9 @@ def main():
 
     black_screen = pygame.Surface(screen_size)
     black_screen.fill((0,0,0))
-    onchange = False
-    fadein = 1
-    alpha = 0
+    onchange = True
+    fadein = -1
+    alpha = 255
     
     while True:
 
