@@ -11,9 +11,12 @@ def main():
     clock = pygame.time.Clock()
     fps = 60
     
-    mode, cube_size, start_point, chars_surf = init(screen_size)
+    # [ [cube_size, start_point, chars_surf], ... ]
+    settings = [init(screen_size, 0), init(screen_size, 1)]
+    state = get_state(screen_size)
     current_time = get_current_time()
 
+    # dimming properties
     black_screen = pygame.Surface(screen_size)
     black_screen.fill((0,0,0))
     onchange = True
@@ -21,35 +24,33 @@ def main():
     alpha = 255
     
     while True:
+        screen.fill((0,0,0))
 
         current_time = get_current_time()
-
-        if onchange:
-            alpha += 5 * fadein
-            black_screen.set_alpha(alpha)
-            if alpha >= 255 and fadein == 1:
-                fadein = -1
-                mode, cube_size, start_point, chars_surf = init(screen_size, not mode)
-            if alpha <= 0 and fadein == -1:
-                onchange = False
-                fadein = 1
         
-        if mode:
+        if state:
             current_time = ' ' + current_time
-
-        screen.fill((0,0,0))
         
+        cube_size, start_point, chars_surf = settings[state][::]
         current_point = start_point[::]
         for i, char in enumerate(current_time):
             surf = chars_surf[char]
             screen.blit(surf, current_point)
-            if (i+1)%3 == 0 and mode:
+            if (i+1)%3 == 0 and state:
                 current_point[0] = start_point[0]
                 current_point[1] += surf.get_height() + cube_size * 2
             else:
                 current_point[0] += surf.get_width() + cube_size
         
         if onchange:
+            alpha += 5 * fadein
+            if alpha >= 255 and fadein == 1:
+                fadein = -1
+                state = not state
+            if alpha <= 0 and fadein == -1:
+                onchange = False
+                fadein = 1
+            black_screen.set_alpha(alpha)
             screen.blit(black_screen, (0,0))
         
         for event in pygame.event.get():
@@ -66,11 +67,11 @@ def main():
         pygame.display.flip()
         clock.tick(fps)
 
-def init(screen_size, mode=None):
-    if mode is None and mode not in [0, 1]:
-        mode = 1 if screen_size[0] <= screen_size[1] else 0
+def init(screen_size, state=None):
+    if state is None and state not in [0, 1]:
+        state = get_state(screen_size)
 
-    if mode:
+    if state:
         cube_size = min([screen_size[0]//15,screen_size[1]//27])
         start_point = [(screen_size[0]-cube_size*13)//2,(screen_size[1]-cube_size*25)//2]
     else:
@@ -79,8 +80,11 @@ def init(screen_size, mode=None):
     
     chars_surf = get_chars_surf(cube_size=cube_size,border=cube_size//10)
     
-    return mode, cube_size, start_point, chars_surf
-    
+    return cube_size, start_point, chars_surf
+
+def get_state(screen_size):
+    return 1 if screen_size[0] <= screen_size[1] else 0
+
 def get_current_time():
     return time.strftime('%H:%M:%S')
 
